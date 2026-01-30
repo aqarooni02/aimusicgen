@@ -10,6 +10,7 @@ from modules.lyrics_gen import generate_lyrics
 from modules.music_gen import generate_music
 from modules.media_fetch import fetch_videos_for_keywords
 from modules.video_edit import create_music_video
+from modules.moltbook import post_music_gen
 
 app = FastAPI()
 
@@ -100,6 +101,9 @@ async def websocket_endpoint(websocket: WebSocket):
                 "video_url": f"/download/video_{timestamp}.mp4",
                 "file_size": f"{file_size:.1f} MB"
             })
+            
+            # Post to Moltbook about the music generation
+            post_music_gen(theme, lyrics, success=True)
         except Exception as e:
             await websocket.send_json({"step": 4, "status": f"Error: {str(e)}"})
             return

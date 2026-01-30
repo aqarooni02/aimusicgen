@@ -16,12 +16,18 @@ def load_model():
         _model = MusicgenForConditionalGeneration.from_pretrained("facebook/musicgen-small")
         
         # Check for GPU (CUDA or ROCm)
+        print(f"PyTorch version: {torch.__version__}")
+        print(f"ROCm/CUDA available: {torch.cuda.is_available()}")
         if torch.cuda.is_available():
             device_name = torch.cuda.get_device_name(0)
             print(f"Using GPU: {device_name}")
             _model = _model.to("cuda")
         else:
-            print("Using CPU (slower)")
+            print("⚠️  GPU not detected - using CPU (slower)")
+            print("   Troubleshooting:")
+            print("   1. Check if ROCm is installed: rocminfo")
+            print("   2. Verify PyTorch was installed with ROCm: python -c 'import torch; print(torch.version.cuda)'")
+            print("   3. Check GPU is accessible in WSL2")
             
     return _processor, _model
 

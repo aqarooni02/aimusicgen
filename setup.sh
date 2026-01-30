@@ -16,13 +16,28 @@ if ! command -v python3 &> /dev/null; then
     exit 1
 fi
 
-PYTHON_VERSION=$(python3 --version | grep -oP '\d+\.\d+')
+# Check for Python 3.13 for ROCm 7.2
+PYTHON_CMD="python3"
+if command -v python3.13 &> /dev/null; then
+    PYTHON_CMD="python3.13"
+    PYTHON_VERSION="3.13"
+    echo "✅ Python 3.13 found - will use for ROCm 7.2 nightly builds"
+elif command -v python3.10 &> /dev/null; then
+    PYTHON_CMD="python3.10"
+    PYTHON_VERSION="3.10"
+    echo "⚠️  Python 3.10 found - will install ROCm 6.2 (for Python 3.13+ and ROCm 7.2, install: sudo apt install python3.13 python3.13-venv)"
+else
+    PYTHON_VERSION=$(python3 --version | grep -oP '\d+\.\d+')
+fi
+
 REQUIRED_VERSION="3.8"
 
 if [ "$(printf '%s\n' "$REQUIRED_VERSION" "$PYTHON_VERSION" | sort -V | head -n1)" != "$REQUIRED_VERSION" ]; then 
     echo "❌ Python 3.8 or higher is required. Found: $PYTHON_VERSION"
     exit 1
 fi
+
+echo "✅ Using Python: $PYTHON_VERSION"
 
 echo "✅ Python version: $PYTHON_VERSION"
 
@@ -100,7 +115,7 @@ if [ -d "venv" ]; then
     rm -rf venv
 fi
 
-python3 -m venv venv
+$PYTHON_CMD -m venv venv
 echo "✅ Virtual environment created"
 
 # Activate virtual environment
@@ -122,15 +137,21 @@ pip install fastapi uvicorn python-multipart websockets transformers moviepy lib
 echo ""
 if [ "$GPU_TYPE" = "AMD" ]; then
     echo "🔥 Installing PyTorch with ROCm support for AMD GPU..."
-    echo "   Downloading from ROCm nightly builds (gfx120X-all)..."
+    echo "   Using AMD nightly builds for gfx120X (RX 7000 series)..."
     echo "   This may take 10-15 minutes..."
     echo ""
     
-    # Uninstall any existing torch to avoid conflicts
-    pip uninstall torch torchaudio torchvision -y 2>/dev/null || true
-    
-    # Install ROCm PyTorch from nightly builds
-    pip install --pre torch torchaudio --index-url https://rocm.nightlies.amd.com/v2/gfx120X-all/
+    # Check Python version for ROCm 7.2 (requires Python 3.13+)
+    if [ "$PYTHON_VERSION" = "3.13" ]; then
+        echo "✅ Python 3.13+ detected - installing ROCm 7.2 nightly builds"
+        pip uninstall torch torchaudio torchvision -y 2>/dev/null || true
+        pip install torch torchaudio --pre --index-url https://rocm.nightlies.amd.com/v2/gfx120X-all/torch
+    else
+        echo "⚠️  Python $PYTHON_VERSION detected, but ROCm 7.2 requires Python 3.13+"
+        echo "   Falling back to ROCm 6.2 stable builds..."
+        pip uninstall torch torchaudio torchvision -y 2>/dev/null || true
+        pip install torch torchaudio --index-url https://download.pytorch.org/whl/rocm6.2
+    fi
     
     echo ""
     echo "✅ ROCm PyTorch installed"
