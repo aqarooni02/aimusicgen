@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Music Video Generator</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>AI Music Video Generator</h1>
+        <p class="subtitle">Generate 30-second AI music videos with lyrics and stock footage</p>
+        
+        <div class="input-section">
+            <input type="text" id="theme" placeholder="Enter theme (e.g., sunset love, city nightlife)" autocomplete="off">
+            <button id="generateBtn" onclick="generate()">Generate Music Video</button>
+        </div>
+        
+        <div id="progress" class="progress hidden">
+            <div class="step" id="step1">
+                <span class="step-num">1</span>
+                <span class="step-text">Generate lyrics</span>
+                <span class="status" id="status1">Waiting...</span>
+            </div>
+            <div class="step" id="step2">
+                <span class="step-num">2</span>
+                <span class="step-text">Create song</span>
+                <span class="status" id="status2">Waiting...</span>
+            </div>
+            <div class="step" id="step3">
+                <span class="step-num">3</span>
+                <span class="step-text">Fetch video clips</span>
+                <span class="status" id="status3">Waiting...</span>
+            </div>
+            <div class="step" id="step4">
+                <span class="step-num">4</span>
+                <span class="step-text">Edit video</span>
+                <span class="status" id="status4">Waiting...</span>
+            </div>
+        </div>
+        
+        <div id="lyrics-display" class="lyrics hidden"></div>
+        
+        <div id="result" class="result hidden">
+            <video id="videoPlayer" controls></video>
+            <a id="downloadBtn" class="download-btn" download>Download MP4</a>
+        </div>
+        
+        <div id="error" class="error hidden"></div>
+    </div>
+    
+    <script src="/static/app.js"></script>
+</body>
+</html>

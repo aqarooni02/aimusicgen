@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+python-multipart
+websockets
+transformers
+moviepy
+librosa
+openai
+requests
+Pillow
+python-dotenv
+accelerate
+soundfile
+
+# NOTE: torch and torchaudio are installed separately by setup.sh
+# based on your GPU type (AMD ROCm / NVIDIA CUDA / CPU)
